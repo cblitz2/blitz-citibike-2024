@@ -37,19 +37,16 @@ public class FindStation {
         double shortestDistance = Double.MAX_VALUE;
 
         for (StationsResponse.Station station : stationsResponse.data.stations) {
-            boolean isAvailable = false;
             for (StatusResponse.StationStatus status : statusResponse.data.stations) {
-                if (status.station_id.equals(station.station_id)) {
-                    isAvailable = status.num_bikes_available > 0;
-                    break;
-                }
-            }
+                if (status.station_id.equals(station.station_id) &&
+                        (findBikes ? status.num_bikes_available > 0 : status.num_docks_available > 0)) {
 
-            if (isAvailable) {
-                double currentDistance = distance(latitude, longitude, station.lat, station.lon);
-                if (currentDistance < shortestDistance) {
-                    shortestDistance = currentDistance;
-                    closestStation = station;
+                    double currentDistance = distance(latitude, longitude, station.lat, station.lon);
+                    if (currentDistance < shortestDistance) {
+                        shortestDistance = currentDistance;
+                        closestStation = station;
+                    }
+                    break;
                 }
             }
         }
