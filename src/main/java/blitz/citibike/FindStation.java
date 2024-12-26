@@ -38,8 +38,8 @@ public class FindStation {
 
         for (StationsResponse.Station station : stationsResponse.data.stations) {
             for (StatusResponse.StationStatus status : statusResponse.data.stations) {
-                if (status.station_id.equals(station.station_id) &&
-                        (findBikes ? status.num_bikes_available > 0 : status.num_docks_available > 0)) {
+                if (status.station_id.equals(station.station_id)
+                        && (findBikes ? status.num_bikes_available > 0 : status.num_docks_available > 0)) {
 
                     double currentDistance = distance(latitude, longitude, station.lat, station.lon);
                     if (currentDistance < shortestDistance) {
