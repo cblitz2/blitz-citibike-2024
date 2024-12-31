@@ -29,7 +29,7 @@ public class FindStation {
         return findClosestStation(latitude, longitude, false);
     }
 
-    public StationsResponse.Station findClosestStation(double latitude, double longitude, boolean findBikes) {
+        public StationsResponse.Station findClosestStation(double latitude, double longitude, boolean findBikes) {
         StationsResponse stationsResponse = service.getStationInformation().blockingGet();
         StatusResponse statusResponse = service.getStationStatus().blockingGet();
 

@@ -33,7 +33,7 @@ public class FindStationTest {
 
         // then
         assertNotNull(station);
-        assertEquals(stationFound.name, "11 Ave & W 59 St");
+        assertEquals(stationFound.name, "West End Ave & W 60 St");
     }
 
     @Test
