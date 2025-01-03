@@ -21,17 +21,25 @@ public class FindStation {
         return foundStation;
     }
 
-    public StationsResponse.Station findClosestAvailable(double latitude, double longitude) {
-        return findClosestStation(latitude, longitude, true);
+    public StationsResponse.Station findClosestAvailable(StationsResponse stationsResponse,
+                                                         StatusResponse statusResponse,
+                                                         double latitude,
+                                                         double longitude) {
+        return findClosestStation(stationsResponse, statusResponse, latitude, longitude, true);
     }
 
-    public StationsResponse.Station findClosestReturn(double latitude, double longitude) {
-        return findClosestStation(latitude, longitude, false);
+    public StationsResponse.Station findClosestReturn(StationsResponse stationsResponse,
+                                                      StatusResponse statusResponse,
+                                                      double latitude,
+                                                      double longitude) {
+        return findClosestStation(stationsResponse, statusResponse, latitude, longitude, false);
     }
 
-    public StationsResponse.Station findClosestStation(double latitude, double longitude, boolean findBikes) {
-        StationsResponse stationsResponse = service.getStationInformation().blockingGet();
-        StatusResponse statusResponse = service.getStationStatus().blockingGet();
+    public StationsResponse.Station findClosestStation(StationsResponse stationsResponse,
+                                                       StatusResponse statusResponse,
+                                                       double latitude,
+                                                       double longitude,
+                                                       boolean findBikes) {
 
         StationsResponse.Station closestStation = null;
         double shortestDistance = Double.MAX_VALUE;
