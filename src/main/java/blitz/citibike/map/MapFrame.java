@@ -10,6 +10,12 @@ public class MapFrame extends JFrame {
     private final MapComponent mapComponent;
     private final JTextField startField;
     private final JTextField endField;
+    private final JLabel startLabel;
+    private final JLabel endLabel;
+    private final JButton submitButton;
+    private final JButton clearButton;
+    private final JButton zoomInButton;
+    private final JButton zoomOutButton;
 
     public MapFrame(MapController controller) {
         this.mapComponent = new MapComponent(this);
@@ -19,26 +25,26 @@ public class MapFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        JPanel inputPanel = new JPanel();
-        JLabel startLabel = new JLabel("Start (lat, lon): ");
+        startLabel = new JLabel("Start (lat, lon): ");
         startField = new JTextField(25);
-        JLabel endLabel = new JLabel("End (lat, lon): ");
+        endLabel = new JLabel("End (lat, lon): ");
         endField = new JTextField(25);
 
-        JButton submitButton = getSubmitButton(controller);
+        submitButton = getSubmitButton(controller);
 
-        JButton clearButton = new JButton("Clear");
+        clearButton = new JButton("Clear");
         clearButton.addActionListener(e -> {
             updateStartLabel(null);
             updateEndLabel(null);
             mapComponent.clearSelections();
         });
 
-        JButton zoomInButton = new JButton("Zoom In");
-        JButton zoomOutButton = new JButton("Zoom Out");
+        zoomInButton = new JButton("Zoom In");
+        zoomOutButton = new JButton("Zoom Out");
         zoomInButton.addActionListener(e -> mapComponent.zoomIn());
         zoomOutButton.addActionListener(e -> mapComponent.zoomOut());
 
+        JPanel inputPanel = new JPanel();
         inputPanel.add(startLabel);
         inputPanel.add(startField);
         inputPanel.add(endLabel);
@@ -68,11 +74,11 @@ public class MapFrame extends JFrame {
             } else {
                 mapComponent.drawRoute(route);
 
-                Set<GeoPosition> LocationWaypoints = Set.of(
+                Set<GeoPosition> locationWaypoints = Set.of(
                         route.get(0),
                         route.get(route.size() - 1)
                 );
-                mapComponent.drawLocationWaypoints(LocationWaypoints);
+                mapComponent.drawLocationWaypoints(locationWaypoints);
                 Set<GeoPosition> stationWaypoints = Set.copyOf(route);
                 mapComponent.drawStationWaypoints(stationWaypoints);
             }
