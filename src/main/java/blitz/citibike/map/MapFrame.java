@@ -1,6 +1,8 @@
 package blitz.citibike.map;
 
+import io.reactivex.rxjava3.core.Single;
 import org.jxmapviewer.viewer.GeoPosition;
+
 import java.awt.BorderLayout;
 import java.util.List;
 import java.util.Set;
@@ -64,37 +66,33 @@ public class MapFrame extends JFrame {
             GeoPosition start = mapComponent.getStartPosition();
             GeoPosition end = mapComponent.getEndPosition();
 
-            List<GeoPosition> route = controller.getRoute(
-                    start.getLatitude(), start.getLongitude(),
-                    end.getLatitude(), end.getLongitude()
+            controller.setFrom(start.getLatitude(), start.getLongitude());
+            controller.setTo(end.getLatitude(), end.getLongitude());
+
+            List<GeoPosition> route = controller.getRoute().blockingGet();
+
+            mapComponent.drawRoute(route);
+
+            Set<GeoPosition> locationWaypoints = Set.of(
+                    route.get(0),
+                    route.get(route.size() - 1)
             );
-
-            if (route.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Unable to find a route.", "Error", JOptionPane.ERROR_MESSAGE);
-            } else {
-                mapComponent.drawRoute(route);
-
-                Set<GeoPosition> locationWaypoints = Set.of(
-                        route.get(0),
-                        route.get(route.size() - 1)
-                );
-                mapComponent.drawLocationWaypoints(locationWaypoints);
-                Set<GeoPosition> stationWaypoints = Set.copyOf(route);
-                mapComponent.drawStationWaypoints(stationWaypoints);
-            }
-        });
+            mapComponent.drawLocationWaypoints(locationWaypoints);
+            Set<GeoPosition> stationWaypoints = Set.copyOf(route);
+            mapComponent.drawStationWaypoints(stationWaypoints);
+    });
         return submitButton;
-    }
+}
 
-    public void updateStartLabel(GeoPosition startPosition) {
-        startField.setText(startPosition != null ? startPosition.toString() : "");
-        startField.repaint();
-    }
+public void updateStartLabel(GeoPosition startPosition) {
+    startField.setText(startPosition != null ? startPosition.toString() : "");
+    startField.repaint();
+}
 
-    public void updateEndLabel(GeoPosition endPosition) {
-        endField.setText(endPosition != null ? endPosition.toString() : "");
-        endField.repaint();
-    }
+public void updateEndLabel(GeoPosition endPosition) {
+    endField.setText(endPosition != null ? endPosition.toString() : "");
+    endField.repaint();
+}
 
 }
 
