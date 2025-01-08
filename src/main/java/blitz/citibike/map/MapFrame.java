@@ -1,11 +1,8 @@
 package blitz.citibike.map;
 
-import io.reactivex.rxjava3.core.Single;
 import org.jxmapviewer.viewer.GeoPosition;
 
 import java.awt.BorderLayout;
-import java.util.List;
-import java.util.Set;
 import javax.swing.*;
 
 public class MapFrame extends JFrame {
@@ -19,8 +16,9 @@ public class MapFrame extends JFrame {
     private final JButton zoomInButton;
     private final JButton zoomOutButton;
 
-    public MapFrame(MapController controller) {
-        this.mapComponent = new MapComponent(this);
+    public MapFrame() {
+        MapController controller = new MapController(this);
+        this.mapComponent = controller.getComponent();
 
         setTitle("CitiBike");
         setSize(800, 600);
@@ -63,37 +61,33 @@ public class MapFrame extends JFrame {
     private JButton getSubmitButton(MapController controller) {
         JButton submitButton = new JButton("Find Route");
         submitButton.addActionListener(e -> {
-            GeoPosition start = mapComponent.getStartPosition();
-            GeoPosition end = mapComponent.getEndPosition();
+            GeoPosition start = controller.getStartPosition();
+            GeoPosition end = controller.getEndPosition();
+
+            if (start == null || end == null) {
+                JOptionPane.showMessageDialog(this,
+                        "Start and End positions must be set before finding the route.",
+                        "Input Error",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
 
             controller.setFrom(start.getLatitude(), start.getLongitude());
             controller.setTo(end.getLatitude(), end.getLongitude());
 
-            List<GeoPosition> route = controller.getRoute().blockingGet();
-
-            mapComponent.drawRoute(route);
-
-            Set<GeoPosition> locationWaypoints = Set.of(
-                    route.get(0),
-                    route.get(route.size() - 1)
-            );
-            mapComponent.drawLocationWaypoints(locationWaypoints);
-            Set<GeoPosition> stationWaypoints = Set.copyOf(route);
-            mapComponent.drawStationWaypoints(stationWaypoints);
-    });
+            controller.getRoute();
+        });
         return submitButton;
+    }
+
+
+    public void updateStartLabel(GeoPosition startPosition) {
+        startField.setText(startPosition != null ? startPosition.toString() : "");
+        startField.repaint();
+    }
+
+    public void updateEndLabel(GeoPosition endPosition) {
+        endField.setText(endPosition != null ? endPosition.toString() : "");
+        endField.repaint();
+    }
 }
-
-public void updateStartLabel(GeoPosition startPosition) {
-    startField.setText(startPosition != null ? startPosition.toString() : "");
-    startField.repaint();
-}
-
-public void updateEndLabel(GeoPosition endPosition) {
-    endField.setText(endPosition != null ? endPosition.toString() : "");
-    endField.repaint();
-}
-
-}
-
-

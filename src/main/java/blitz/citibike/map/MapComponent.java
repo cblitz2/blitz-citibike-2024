@@ -1,5 +1,7 @@
 package blitz.citibike.map;
 
+import blitz.citibike.StationsResponse;
+import blitz.citibike.aws.CitiBikeResponse;
 import org.jxmapviewer.*;
 import org.jxmapviewer.input.*;
 import org.jxmapviewer.painter.CompoundPainter;
@@ -9,7 +11,6 @@ import javax.swing.*;
 import javax.swing.event.MouseInputListener;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.Point2D;
 import java.util.*;
 import java.util.List;
 
@@ -18,11 +19,12 @@ public class MapComponent extends JComponent {
     private GeoPosition startPosition;
     private GeoPosition endPosition;
     private RoutePainter routePainter;
+    private Set<Waypoint> waypoints;
     private WaypointPainter<Waypoint> locationWaypointPainter;
     private WaypointPainter<Waypoint> stationWaypointPainter;
 
 
-    public MapComponent(MapFrame frame) {
+    public MapComponent(MapController controller) {
         mapViewer = new JXMapViewer();
         TileFactoryInfo info = new OSMTileFactoryInfo();
         DefaultTileFactory factory = new DefaultTileFactory(info);
@@ -40,40 +42,14 @@ public class MapComponent extends JComponent {
         mapViewer.addMouseListener(new CenterMapListener(mapViewer));
         mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
         mapViewer.addKeyListener(new PanKeyListener(mapViewer));
-
         mapViewer.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 int x = e.getX();
                 int y = e.getY();
-                Point2D.Double point = new Point2D.Double(x, y);
-                GeoPosition position = mapViewer.convertPointToGeoPosition(point);
-
-                if (startPosition == null) {
-                    startPosition = position;
-                    frame.updateStartLabel(startPosition);
-                } else if (endPosition == null) {
-                    endPosition = position;
-                    frame.updateEndLabel(endPosition);
-                    drawLocationWaypoints(Set.of(startPosition, endPosition));
-                    mapViewer.zoomToBestFit(Set.of(startPosition, endPosition), 1.0);
-                } else {
-                    startPosition = position;
-                    endPosition = null;
-                    frame.updateStartLabel(startPosition);
-                    frame.updateEndLabel(null);
-                }
+                controller.handleMapClick(x, y);
             }
         });
-
-    }
-
-    public GeoPosition getStartPosition() {
-        return startPosition;
-    }
-
-    public GeoPosition getEndPosition() {
-        return endPosition;
     }
 
     public void clearSelections() {
@@ -82,11 +58,25 @@ public class MapComponent extends JComponent {
         repaint();
     }
 
-    public void drawRoute(List<GeoPosition> route) {
-        this.routePainter = new RoutePainter(route);
+    public void drawRoute(CitiBikeResponse response) {
+        List<GeoPosition> track = new ArrayList<>();
+        StationsResponse.Station startStation = response.start;
+        StationsResponse.Station endStation = response.end;
+        track.add(new GeoPosition(response.from.lat, response.from.lon));
+        track.add(new GeoPosition(startStation.lat, startStation.lon));
+        track.add(new GeoPosition(endStation.lat, endStation.lon));
+        track.add(new GeoPosition(response.to.lat, response.to.lon));
+        this.routePainter = new RoutePainter(track);
         mapViewer.setOverlayPainter(new CompoundPainter<>(List.of(routePainter)));
-        mapViewer.setAddressLocation(route.get(0));
         mapViewer.repaint();
+        WaypointPainter<Waypoint> waypointPainter = new WaypointPainter<Waypoint>();
+        waypoints = Set.of(
+                new DefaultWaypoint(startStation.lat, startStation.lon),
+                new DefaultWaypoint(endStation.lat, endStation.lon)
+        );
+        waypointPainter.setWaypoints(waypoints);
+        drawStationWaypoints(waypoints);
+        updatePainters();
     }
 
     public void drawLocationWaypoints(Set<GeoPosition> positions) {
@@ -101,15 +91,11 @@ public class MapComponent extends JComponent {
         updatePainters();
     }
 
-    public void drawStationWaypoints(Set<GeoPosition> stationPositions) {
+    public void drawStationWaypoints(Set<Waypoint> stationPositions) {
         if (stationWaypointPainter == null) {
             stationWaypointPainter = new WaypointPainter<>();
         }
-        Set<Waypoint> waypoints = new HashSet<>();
-        for (GeoPosition position : stationPositions) {
-            waypoints.add(new DefaultWaypoint(position));
-        }
-        stationWaypointPainter.setWaypoints(waypoints);
+        stationWaypointPainter.setWaypoints(stationPositions);
         updatePainters();
     }
 
@@ -126,7 +112,6 @@ public class MapComponent extends JComponent {
         if (routePainter != null) {
             painters.add(routePainter);
         }
-
         if (!painters.isEmpty()) {
             CompoundPainter<JXMapViewer> compoundPainter = new CompoundPainter<>(painters);
             mapViewer.setOverlayPainter(compoundPainter);
@@ -136,7 +121,6 @@ public class MapComponent extends JComponent {
 
         mapViewer.repaint();
     }
-
 
     public void zoomIn() {
         int currentZoom = mapViewer.getZoom();
@@ -148,5 +132,8 @@ public class MapComponent extends JComponent {
         mapViewer.setZoom(currentZoom + 1);
     }
 
-}
+    public JXMapViewer getMapViewer() {
+        return mapViewer;
+    }
 
+}
