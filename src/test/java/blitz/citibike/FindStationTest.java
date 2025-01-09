@@ -28,9 +28,13 @@ public class FindStationTest {
         double latitude = 40.772200;
         double longitude = -73.990900;
 
-        // when
-        StationsResponse.Station stationFound = station.findClosestAvailable(latitude, longitude);
 
+        StationsResponse stationsResponse = service.getStationInformation().blockingGet();
+        StatusResponse statusResponse = service.getStationStatus().blockingGet();
+
+        // when
+        StationsResponse.Station stationFound = station.findClosestAvailable(
+                stationsResponse, statusResponse, latitude, longitude);
         // then
         assertNotNull(station);
         assertEquals(stationFound.name, "11 Ave & W 59 St");
@@ -44,8 +48,12 @@ public class FindStationTest {
         double latitude = 40.772200;
         double longitude = -73.990900;
 
+        StationsResponse stationsResponse = service.getStationInformation().blockingGet();
+        StatusResponse statusResponse = service.getStationStatus().blockingGet();
+
         // when
-        StationsResponse.Station stationFound = station.findClosestReturn(latitude, longitude);
+        StationsResponse.Station stationFound = station.findClosestReturn(
+                stationsResponse, statusResponse, latitude, longitude);
 
         // then
         assertNotNull(station);
