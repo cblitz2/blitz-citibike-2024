@@ -1,7 +1,6 @@
 package blitz.citibike.aws;
 
 import blitz.citibike.*;
-import blitz.citibike.map.LambdaService;
 import com.google.gson.Gson;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -29,6 +28,7 @@ public class StationsCache {
                 .build();
         this.citiBikeService = new CitiBikeServiceFactory().getService();
     }
+
     public Stations getStations() {
         if (stations != null && lastModified != null && Duration.between(lastModified, Instant.now()).toHours() < 1) {
             return stations;
@@ -90,4 +90,3 @@ public class StationsCache {
         return lastModified;
     }
 }
-
