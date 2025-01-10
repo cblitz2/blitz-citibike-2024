@@ -1,5 +1,7 @@
 package blitz.citibike.map;
 
+import blitz.citibike.Station;
+import blitz.citibike.Stations;
 import blitz.citibike.StationsResponse;
 import blitz.citibike.aws.CitiBikeResponse;
 import org.jxmapviewer.*;
@@ -60,8 +62,8 @@ public class MapComponent extends JComponent {
 
     public void drawRoute(CitiBikeResponse response) {
         List<GeoPosition> track = new ArrayList<>();
-        StationsResponse.Station startStation = response.start;
-        StationsResponse.Station endStation = response.end;
+        Station startStation = response.start;
+        Station endStation = response.end;
         track.add(new GeoPosition(response.from.lat, response.from.lon));
         track.add(new GeoPosition(startStation.lat, startStation.lon));
         track.add(new GeoPosition(endStation.lat, endStation.lon));

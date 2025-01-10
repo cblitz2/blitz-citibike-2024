@@ -6,8 +6,8 @@ import retrofit2.http.GET;
 public interface CitiBikeService {
 
     @GET("/gbfs/en/station_information.json")
-    Single<StationsResponse> getStationInformation();
+    Single<Stations> getStationInformation();
 
     @GET("/gbfs/en/station_status.json")
-    Single<StatusResponse> getStationStatus();
+    Single<Stations> getStationStatus();
 }

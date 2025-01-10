@@ -5,6 +5,7 @@ import hu.akarnokd.rxjava3.swing.SwingSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import org.jxmapviewer.viewer.GeoPosition;
+import retrofit2.HttpException;
 
 import java.awt.geom.Point2D;
 import java.util.*;
@@ -35,11 +36,27 @@ public class MapController {
                         response -> {
                             if (response.start != null && response.end != null) {
                                 component.drawRoute(response);
+                            } else {
+                                System.err.println("Invalid response: Missing start or end station.");
                             }
                         },
-                        Throwable::printStackTrace
+                        throwable -> {
+                            if (throwable instanceof HttpException) {
+                                HttpException httpException = (HttpException) throwable;
+                                try {
+                                    String errorBody = httpException.response().errorBody().string();
+                                    System.err.println("HTTP Error: " + httpException.code() + " - " + errorBody);
+                                } catch (Exception e) {
+                                    System.err.println("Error reading HTTP error body: " + e.getMessage());
+                                }
+                            } else {
+                                System.err.println("Unexpected error: " + throwable.getMessage());
+                                throwable.printStackTrace();
+                            }
+                        }
                 ));
     }
+
 
     public void setFrom(double fromLat, double fromLon) {
         this.from = new Point(fromLat, fromLon);

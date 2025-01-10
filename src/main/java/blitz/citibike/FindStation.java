@@ -1,54 +1,40 @@
 package blitz.citibike;
 
+import blitz.citibike.aws.StationsCache;
+
 public class FindStation {
 
-    private final CitiBikeService service;
+    private StationsCache cache;
 
-    public FindStation(CitiBikeService service) {
-        this.service = service;
+    public FindStation(StationsCache cache) {
+        this.cache = cache;
     }
 
-    public StatusResponse.StationStatus findStatusById(String stationId) {
-        StatusResponse.StationStatus foundStation = null;
-        StatusResponse response = service.getStationStatus().blockingGet();
-
-        for (StatusResponse.StationStatus station : response.data.stations) {
-            if (station.station_id.equals(stationId)) {
-                foundStation = station;
-                break;
-            }
-        }
-        return foundStation;
-    }
-
-    public StationsResponse.Station findClosestAvailable(StationsResponse stationsResponse,
-                                                         StatusResponse statusResponse,
-                                                         double latitude,
-                                                         double longitude) {
+    public Station findClosestAvailable(Stations stationsResponse,
+                                         Stations statusResponse,
+                                         double latitude,
+                                         double longitude) {
         return findClosestStation(stationsResponse, statusResponse, latitude, longitude, true);
     }
 
-    public StationsResponse.Station findClosestReturn(StationsResponse stationsResponse,
-                                                      StatusResponse statusResponse,
-                                                      double latitude,
-                                                      double longitude) {
+    public Station findClosestReturn(Stations stationsResponse,
+                                     Stations statusResponse,
+                                      double latitude,
+                                      double longitude) {
         return findClosestStation(stationsResponse, statusResponse, latitude, longitude, false);
     }
 
-    public StationsResponse.Station findClosestStation(StationsResponse stationsResponse,
-                                                       StatusResponse statusResponse,
-                                                       double latitude,
-                                                       double longitude,
-                                                       boolean findBikes) {
-
-        StationsResponse.Station closestStation = null;
+    public Station findClosestStation(Stations stationsResponse,
+                                      Stations statusResponse,
+                                      double latitude, double longitude,
+                                      boolean findBikes) {
+        Station closestStation = null;
         double shortestDistance = Double.MAX_VALUE;
 
-        for (StationsResponse.Station station : stationsResponse.data.stations) {
-            for (StatusResponse.StationStatus status : statusResponse.data.stations) {
+        for (Station station : stationsResponse.data.stations) {
+            for (Station status : statusResponse.data.stations) {
                 if (status.station_id.equals(station.station_id)
                         && (findBikes ? status.num_bikes_available > 0 : status.num_docks_available > 0)) {
-
                     double currentDistance = distance(latitude, longitude, station.lat, station.lon);
                     if (currentDistance < shortestDistance) {
                         shortestDistance = currentDistance;
@@ -60,6 +46,7 @@ public class FindStation {
         }
         return closestStation;
     }
+
 
     private double distance(double lat1, double lon1, double lat2, double lon2) {
         double xDist = lat2 - lat1;
