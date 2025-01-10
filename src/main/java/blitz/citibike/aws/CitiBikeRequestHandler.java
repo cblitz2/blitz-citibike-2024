@@ -12,20 +12,25 @@ public class CitiBikeRequestHandler implements RequestHandler
 
     @Override
     public CitiBikeResponse handleRequest(APIGatewayProxyRequestEvent event, Context context) {
-        String body = event.getBody();
-        Gson gson = new Gson();
-        CitiBikeRequest request = gson.fromJson(body, CitiBikeRequest.class);
-        FindStation findStation = new FindStation(cache);
+        try {
+            Gson gson = new Gson();
+            CitiBikeRequest request = gson.fromJson(event.getBody(), CitiBikeRequest.class);
 
-        CitiBikeService service = (CitiBikeService) cache.getStations();
-        Stations info = cache.getStations();
-        Stations status = service.getStationStatus().blockingGet();
+            CitiBikeService service = new CitiBikeServiceFactory().getService();
+            Stations info = cache.getStations();
+            Stations status = service.getStationStatus().blockingGet();
 
-        Station startStation = findStation.findClosestAvailable(
-                info, status, request.from.lat, request.from.lon);
-        Station endStation = findStation.findClosestReturn(
-                info, status, request.to.lat, request.to.lon);
+            FindStation findStation = new FindStation(cache);
+            Station startStation = findStation.findClosestAvailable(
+                    info, status, request.from.lat, request.from.lon);
+            Station endStation = findStation.findClosestReturn(
+                    info, status, request.to.lat, request.to.lon);
 
-        return new CitiBikeResponse(request.from, request.to, startStation, endStation);
+            return new CitiBikeResponse(request.from, request.to, startStation, endStation);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
+
 }

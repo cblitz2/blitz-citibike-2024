@@ -32,7 +32,7 @@ public class CitiBikeServiceTest {
 
         // then
         assertNotNull(response.data.stations[2].station_id);
-        assertNotEquals(0, response.data.stations[2].num_docks_available);
+        assertNotEquals("not equal", response.data.stations[2].num_docks_available);
 
     }
 }

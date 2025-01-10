@@ -29,6 +29,7 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:5.5.0'
     testImplementation 'org.mockito:mockito-junit-jupiter:5.5.0'
     implementation 'org.jxmapviewer:jxmapviewer2:2.8'
+    implementation 'org.slf4j:slf4j-simple:2.0.9'
 }
 
 test {
