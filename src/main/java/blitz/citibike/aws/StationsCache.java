@@ -33,7 +33,8 @@ public class StationsCache {
 
     public Stations getStations() {
         try {
-            if (stations != null && lastModified != null && Duration.between(lastModified, Instant.now()).toHours() < 1) {
+            if (stations != null && lastModified != null
+                    && Duration.between(lastModified, Instant.now()).toHours() < 1) {
                 return stations;
             }
             if ((stations == null && lastModifiedS3())
@@ -50,7 +51,6 @@ public class StationsCache {
         }
         return stations;
     }
-
 
     public void writeToS3() {
         try {
