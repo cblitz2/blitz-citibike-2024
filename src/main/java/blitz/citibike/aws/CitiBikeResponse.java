@@ -3,6 +3,7 @@ package blitz.citibike.aws;
 import blitz.citibike.*;
 
 public class CitiBikeResponse {
+
     public Point from;
     public Point to;
     public StationsResponse.Station start;
