@@ -9,6 +9,7 @@ public class StationsResponse {
         public List<Station> stations;
     }
 
+
     public class Station {
         //CHECKSTYLE:OFF
         public String station_id;
