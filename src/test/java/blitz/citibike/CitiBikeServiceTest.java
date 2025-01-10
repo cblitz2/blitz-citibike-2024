@@ -1,6 +1,8 @@
 package blitz.citibike;
 
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class CitiBikeServiceTest {
@@ -11,14 +13,13 @@ public class CitiBikeServiceTest {
         CitiBikeService service = new CitiBikeServiceFactory().getService();
 
         // when
-        StationsResponse response = service.getStationInformation().blockingGet();
+        Stations response = service.getStationInformation().blockingGet();
 
         // then
-        StationsResponse.Station station = response.data.stations.get(0);
-        assertNotNull(station.station_id);
-        assertNotNull(station.name);
-        assertNotNull(station.lon);
-        assertNotNull(station.lat);
+        assertNotNull(response.data.stations[0].station_id);
+        assertNotNull(response.data.stations[0].name);
+        assertNotEquals(0, response.data.stations[0].lon);
+        assertNotEquals(0, response.data.stations[0].lat);
     }
 
     @Test
@@ -27,13 +28,11 @@ public class CitiBikeServiceTest {
         CitiBikeService service = new CitiBikeServiceFactory().getService();
 
         // when
-        StatusResponse response = service.getStationStatus().blockingGet();
+        Stations response = service.getStationStatus().blockingGet();
 
         // then
-        StatusResponse.StationStatus status = response.data.stations.get(0);
-        assertNotNull(response.data.stations.get(2).station_id);
-        assertNotNull(status.num_bikes_available);
-        assertNotNull(status.num_ebikes_available);
-        assertNotNull(status.num_docks_available);
+        assertNotNull(response.data.stations[2].station_id);
+        assertNotEquals(0, response.data.stations[2].num_docks_available);
+
     }
 }
